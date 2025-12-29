@@ -1,0 +1,21 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevHabit.Api", "DevHabit.Api\DevHabit.Api.csproj", "{0BAE7078-B9CA-4676-B7B2-33E45998E88D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6E891F26-0A1E-435C-BD78-0BE7E823F828}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0BAE7078-B9CA-4676-B7B2-33E45998E88D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BAE7078-B9CA-4676-B7B2-33E45998E88D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BAE7078-B9CA-4676-B7B2-33E45998E88D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BAE7078-B9CA-4676-B7B2-33E45998E88D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0BAE7078-B9CA-4676-B7B2-33E45998E88D} = {6E891F26-0A1E-435C-BD78-0BE7E823F828}
+	EndGlobalSection
+EndGlobal
