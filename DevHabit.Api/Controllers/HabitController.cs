@@ -1,4 +1,5 @@
 using DevHabit.Api.Database;
+using DevHabit.Api.DTOs.Habits;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,9 +17,98 @@ public sealed class HabitController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetHabits()
+    public async Task<ActionResult<HabitsCollectionDto>> GetHabits()
     {
-        var habits = await _dbContext.Habits.ToListAsync();
-        return Ok(habits);
+        var habits = await _dbContext
+            .Habits
+            .Select(h => new HabitDto
+            {
+                Id = h.Id,
+                Name = h.Name,
+                Description = h.Description,
+                Type = h.Type,
+                Frequency = new FrequencyDto
+                {
+                    Type = h.Frequency.Type,
+                    TimesPerPeriod = h.Frequency.TimesPerPeriod,
+                },
+                
+                Target = new TargetDto
+                {
+                    Value = h.Target.Value,
+                    Unit = h.Target.Unit,
+                },
+                
+                Status = h.Status,
+                IsArchived = h.IsArchived,
+                EndDate = h.EndDate,
+                
+                Milestone = h.Milestone == null ? null : new MilestoneDto
+                {
+                    Target = h.Milestone.Target,
+                    Current = h.Milestone.Current,
+                },
+                
+                CreatedAtUtc = h.CreatedAtUtc,
+                UpdateAtUtc = h.UpdateAtUtc,
+                LastCompletedAtUtc = h.LastCompletedAtUtc
+
+            })
+            .ToListAsync();
+
+        var habitsCollectionDto = new HabitsCollectionDto
+        {
+            Items = habits,
+        };
+        return Ok(habitsCollectionDto);
+    }
+
+    [HttpGet("{id:alpha}")]
+    public async Task<ActionResult<HabitDto>> GetHabit(string id)
+    {
+        var habit = await _dbContext
+            .Habits
+            .Where(h => h.Id == id)
+            .Select(h => new HabitDto
+            {
+                Id = h.Id,
+                Name = h.Name,
+                Description = h.Description,
+                Type = h.Type,
+                Frequency = new FrequencyDto
+                {
+                    Type = h.Frequency.Type,
+                    TimesPerPeriod = h.Frequency.TimesPerPeriod,
+                },
+
+                Target = new TargetDto
+                {
+                    Value = h.Target.Value,
+                    Unit = h.Target.Unit,
+                },
+
+                Status = h.Status,
+                IsArchived = h.IsArchived,
+                EndDate = h.EndDate,
+
+                Milestone = h.Milestone == null
+                    ? null
+                    : new MilestoneDto
+                    {
+                        Target = h.Milestone.Target,
+                        Current = h.Milestone.Current,
+                    },
+
+                CreatedAtUtc = h.CreatedAtUtc,
+                UpdateAtUtc = h.UpdateAtUtc,
+                LastCompletedAtUtc = h.LastCompletedAtUtc
+
+            }).FirstOrDefaultAsync();
+
+        if (habit is null)
+        {
+            return NotFound();
+        } 
+        return Ok(habit);
     }
 }
