@@ -4,7 +4,7 @@ namespace DevHabit.Api.DTOs.Habits;
 
 public sealed record CreateHabitDto
 {
-    public string Name { get; init; }
+    public required string Name { get; init; }
     public string? Description { get; init; }
     public required HabitType Type { get; init; }
     public required FrequencyDto Frequency { get; init; }
