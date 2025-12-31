@@ -1,6 +1,5 @@
 using DevHabit.Api.Database;
 using DevHabit.Api.DTOs.Habits;
-using DevHabit.Api.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -81,7 +80,8 @@ public sealed class HabitController : ControllerBase
         var habit = await _dbContext.Habits.FirstOrDefaultAsync(h => h.Id == id);
         if (habit is null)
         {
-            return NotFound();
+            return NotFound(); 
+           
         }
 
         _dbContext.Habits.Remove(habit);
