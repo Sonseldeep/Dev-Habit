@@ -2,6 +2,7 @@ using DevHabit.Api.Database;
 using DevHabit.Api.DTOs.Tags;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace DevHabit.Api.Controllers;
@@ -42,12 +43,15 @@ public sealed class TagsController(ApplicationDbContext dbContext) : ControllerB
     }
 
     [HttpPost]
-    public async Task<ActionResult<TagDto>> CreateTag([FromBody] CreateTagDto createTagDto, IValidator<CreateTagDto> validator)
+    public async Task<ActionResult<TagDto>> CreateTag([FromBody] CreateTagDto createTagDto, IValidator<CreateTagDto> validator,ProblemDetailsFactory problemDetailsFactory)
     {
         var validateResult = await validator.ValidateAsync(createTagDto);
         if (!validateResult.IsValid)
         {
-            return ValidationProblem(new ValidationProblemDetails(validateResult.ToDictionary()));
+            var problem = problemDetailsFactory.CreateProblemDetails(HttpContext, StatusCodes.Status400BadRequest);
+            
+            problem.Extensions.Add("errors", validateResult.ToDictionary());
+            return BadRequest(problem);
         }
         
         var tag = createTagDto.ToEntity();
