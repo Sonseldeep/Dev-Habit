@@ -64,6 +64,24 @@ namespace DevHabit.Api.Migrations.Application
                     b.ToTable("Habits", "dev_habit");
                 });
 
+            modelBuilder.Entity("DevHabit.Api.Entities.HabitTag", b =>
+                {
+                    b.Property<string>("HabitId")
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("TagId")
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("HabitId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("HabitTags", "dev_habit");
+                });
+
             modelBuilder.Entity("DevHabit.Api.Entities.Tag", b =>
                 {
                     b.Property<string>("Id")
@@ -161,6 +179,26 @@ namespace DevHabit.Api.Migrations.Application
 
                     b.Navigation("Target")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("DevHabit.Api.Entities.HabitTag", b =>
+                {
+                    b.HasOne("DevHabit.Api.Entities.Habit", null)
+                        .WithMany("HabitTags")
+                        .HasForeignKey("HabitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DevHabit.Api.Entities.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DevHabit.Api.Entities.Habit", b =>
+                {
+                    b.Navigation("HabitTags");
                 });
 #pragma warning restore 612, 618
         }
