@@ -1,5 +1,6 @@
 using DevHabit.Api.Database;
 using DevHabit.Api.DTOs.Habits;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -48,8 +49,13 @@ public sealed class HabitController : ControllerBase
 
 
     [HttpPost]
-    public async Task<ActionResult<HabitDto>> CreateHabit( [FromBody] CreateHabitDto createHabitDto)
+    public async Task<ActionResult<HabitDto>> CreateHabit( [FromBody] CreateHabitDto createHabitDto, IValidator<CreateHabitDto> validator)
     {
+        var validationResult = await validator.ValidateAsync(createHabitDto);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.ToDictionary());
+        }
         var habit = createHabitDto.ToEntity();
         _dbContext.Habits.Add(habit);
         await _dbContext.SaveChangesAsync();
