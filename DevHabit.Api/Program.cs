@@ -1,5 +1,7 @@
 using DevHabit.Api.Database;
+using DevHabit.Api.DTOs.Tags;
 using DevHabit.Api.Extensions;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Scalar.AspNetCore;
@@ -12,8 +14,10 @@ builder.Services.AddControllers(options =>
     options.ReturnHttpNotAcceptable = true;
 }).AddXmlSerializerFormatters();
 
+// fluent validation 
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddOpenApi();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen();  
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("Database"),
