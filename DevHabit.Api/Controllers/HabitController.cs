@@ -32,12 +32,12 @@ public sealed class HabitController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<HabitDto>> GetHabit(string id)
+    public async Task<ActionResult<HabitWithTagsDto>> GetHabit(string id)
     {
         var habit = await _dbContext
             .Habits
             .Where(h => h.Id == id)
-            .Select(HabitQueries.ProjectToDto()).FirstOrDefaultAsync();
+            .Select(HabitQueries.ProjectToHabitWithTagDto()).FirstOrDefaultAsync();
 
         if (habit is null)
         {
