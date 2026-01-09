@@ -1,5 +1,6 @@
 using DevHabit.Api.Database;
 using DevHabit.Api.DTOs.Habits;
+using DevHabit.Api.Entities;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,10 +19,19 @@ public sealed class HabitController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<HabitsCollectionDto>> GetHabits()
-    {   
+    public async Task<ActionResult<HabitsCollectionDto>> GetHabits([FromQuery(Name ="q" )] string? search,
+       HabitType? type, 
+       HabitStatus? status)
+    {
+        search ??= search?.Trim().ToLower();
+
+      
         var habits = await _dbContext
             .Habits
+            .Where(h => search == null || h.Name.ToLower().Contains(search) ||
+                        h.Description != null && h.Description.ToLower().Contains(search))
+            .Where(h => type == null || h.Type == type)
+            .Where(h => status == null || h.Status == status)
             .Select(HabitQueries.ProjectToDto())
             .ToListAsync();
 
