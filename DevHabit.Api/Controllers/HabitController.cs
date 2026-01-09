@@ -9,29 +9,21 @@ namespace DevHabit.Api.Controllers;
 
 [ApiController]
 [Route("api/habits")]
-public sealed class HabitController : ControllerBase
+public sealed class HabitController(ApplicationDbContext dbContext) : ControllerBase
 {
-    private readonly ApplicationDbContext _dbContext;
-
-    public HabitController(ApplicationDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
     [HttpGet]
-    public async Task<ActionResult<HabitsCollectionDto>> GetHabits([FromQuery(Name ="q" )] string? search,
-       HabitType? type, 
-       HabitStatus? status)
+    public async Task<ActionResult<HabitsCollectionDto>> GetHabits( [FromQuery] HabitsQueryParameter query)
     {
-        search ??= search?.Trim().ToLower();
+        // for search, trim and convert to lower case
+        query.Search ??= query.Search?.Trim().ToLower();
 
       
-        var habits = await _dbContext
+        var habits = await dbContext
             .Habits
-            .Where(h => search == null || h.Name.ToLower().Contains(search) ||
-                        h.Description != null && h.Description.ToLower().Contains(search))
-            .Where(h => type == null || h.Type == type)
-            .Where(h => status == null || h.Status == status)
+            .Where(h => query.Search == null || h.Name.ToLower().Contains(query.Search) ||
+                        h.Description != null && h.Description.ToLower().Contains(query.Search)) // filter by search
+            .Where(h => query.Type == null || h.Type == query.Type) // filter by type
+            .Where(h => query.Status == null || h.Status == query.Status) // filter by status
             .Select(HabitQueries.ProjectToDto())
             .ToListAsync();
 
@@ -45,7 +37,7 @@ public sealed class HabitController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<HabitWithTagsDto>> GetHabit(string id)
     {
-        var habit = await _dbContext
+        var habit = await dbContext
             .Habits
             .Where(h => h.Id == id)
             .Select(HabitQueries.ProjectToHabitWithTagDto()).FirstOrDefaultAsync();
@@ -65,8 +57,8 @@ public sealed class HabitController : ControllerBase
         
         var habit = createHabitDto.ToEntity();
         
-        _dbContext.Habits.Add(habit);
-        await _dbContext.SaveChangesAsync();
+        dbContext.Habits.Add(habit);
+        await dbContext.SaveChangesAsync();
 
         var habitDto = habit.ToDto();
         
@@ -76,14 +68,14 @@ public sealed class HabitController : ControllerBase
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateHabit([FromRoute] string id,[FromBody] UpdateHabitDto updateHabitDto)
     {
-        var habit = await _dbContext.Habits.FirstOrDefaultAsync(h => h.Id == id);
+        var habit = await dbContext.Habits.FirstOrDefaultAsync(h => h.Id == id);
         if (habit is null)
         {
             return NotFound();
         }
 
         habit.UpdateFromDto(updateHabitDto);
-        await _dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
         return NoContent();
     }
 
@@ -91,15 +83,15 @@ public sealed class HabitController : ControllerBase
 
     public async Task<ActionResult> DeleteHabit([FromRoute] string id)
     {
-        var habit = await _dbContext.Habits.FirstOrDefaultAsync(h => h.Id == id);
+        var habit = await dbContext.Habits.FirstOrDefaultAsync(h => h.Id == id);
         if (habit is null)
         {
             return NotFound(); 
            
         }
 
-        _dbContext.Habits.Remove(habit);
-        await _dbContext.SaveChangesAsync();
+        dbContext.Habits.Remove(habit);
+        await dbContext.SaveChangesAsync();
         return NoContent();
     }
     
