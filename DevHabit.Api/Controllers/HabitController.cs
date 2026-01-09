@@ -51,12 +51,10 @@ public sealed class HabitController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<HabitDto>> CreateHabit( [FromBody] CreateHabitDto createHabitDto, IValidator<CreateHabitDto> validator)
     {
-        var validationResult = await validator.ValidateAsync(createHabitDto);
-        if (!validationResult.IsValid)
-        {
-            return BadRequest(validationResult.ToDictionary());
-        }
+        await validator.ValidateAndThrowAsync(createHabitDto);
+        
         var habit = createHabitDto.ToEntity();
+        
         _dbContext.Habits.Add(habit);
         await _dbContext.SaveChangesAsync();
 
