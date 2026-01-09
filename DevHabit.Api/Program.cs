@@ -1,6 +1,7 @@
 using DevHabit.Api.Database;
 using DevHabit.Api.DTOs.Tags;
 using DevHabit.Api.Extensions;
+using DevHabit.Api.Middleware;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -8,7 +9,7 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+// support for XML formatting
 builder.Services.AddControllers(options =>
 {
     options.ReturnHttpNotAcceptable = true;
@@ -19,6 +20,7 @@ builder.Services.AddControllers(options =>
 // fluent validation 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
+// problem details & exception handling
 builder.Services.AddProblemDetails(options =>
 {
     options.CustomizeProblemDetails = context =>
@@ -26,6 +28,12 @@ builder.Services.AddProblemDetails(options =>
         context.ProblemDetails.Extensions.TryAdd("requestId", context.HttpContext.TraceIdentifier);
     };
 });
+
+// Validation Exception Handler always before Global Exception Handler
+builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
+
+// Global Exception Handler
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();  
@@ -49,6 +57,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+// Exception Handling Middleware
+app.UseExceptionHandler();
 
 app.MapControllers();
 
